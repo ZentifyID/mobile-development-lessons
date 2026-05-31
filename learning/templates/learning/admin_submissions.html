@@ -1,0 +1,61 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Отправленные работы{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Администрирование</p>
+    <h1>Отправленные работы</h1>
+    <p>Проверка практических заданий студентов, комментарии преподавателя и статус выполнения.</p>
+</section>
+
+<section class="section admin-content-section">
+    <div class="dashboard-grid">
+        <article class="metric-card">
+            <span>Всего отправок</span>
+            <strong>{{ totals.all }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>На проверке</span>
+            <strong>{{ totals.pending }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Проверено</span>
+            <strong>{{ totals.checked }}</strong>
+        </article>
+    </div>
+
+    <div class="submission-filters" aria-label="Фильтр отправок">
+        <a class="{% if status == 'all' %}active{% endif %}" href="{% url 'admin_submissions' %}">Все</a>
+        <a class="{% if status == 'pending' %}active{% endif %}" href="{% url 'admin_submissions' %}?status=pending">На проверке</a>
+        <a class="{% if status == 'checked' %}active{% endif %}" href="{% url 'admin_submissions' %}?status=checked">Проверено</a>
+    </div>
+
+    {% if submissions %}
+        <div class="submission-admin-list">
+            {% for submission in submissions %}
+                <article class="submission-admin-card">
+                    <div>
+                        <span class="meta">{{ submission.task.lesson.module.title }} / {{ submission.task.lesson.title }}</span>
+                        <h2>{{ submission.task.title }}</h2>
+                        <p>{{ submission.answer_text|truncatewords:28 }}</p>
+                    </div>
+                    <div class="submission-admin-meta">
+                        <span>{{ submission.user.get_full_name|default:submission.user.username }}</span>
+                        <span>{{ submission.updated_at|date:"d.m.Y H:i" }}</span>
+                        <em class="{% if submission.is_checked %}passed{% else %}pending{% endif %}">
+                            {% if submission.is_checked %}Проверено{% else %}На проверке{% endif %}
+                        </em>
+                        <a class="content-action-button small accent" href="{% url 'admin_submission_detail' submission.pk %}">Открыть</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Отправленных работ пока нет</h2>
+            <p>Когда студенты отправят практические задания, они появятся на этой странице.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

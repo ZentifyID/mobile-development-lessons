@@ -1,0 +1,158 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Личный кабинет</p>
+    <h1>{{ user.get_full_name|default:user.username }}</h1>
+    <p>Здесь отображается прогресс изучения уроков.</p>
+</section>
+
+<section class="section">
+    <div class="dashboard-grid">
+        <article class="metric-card">
+            <span>Изучено уроков</span>
+            <strong>{{ completed_count }} / {{ total_lessons }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Прогресс курса</span>
+            <strong>{{ progress_percent }}%</strong>
+        </article>
+        <article class="metric-card">
+            <span>Пройдено тестов</span>
+            <strong>{{ passed_tests }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Средний результат</span>
+            <strong>{{ average_test_percent }}%</strong>
+        </article>
+    </div>
+
+    <div class="progress-track" aria-label="Прогресс курса">
+        <div class="progress-fill" style="width: {{ progress_percent }}%"></div>
+    </div>
+</section>
+
+<section class="section muted">
+    <div class="section-heading">
+        <p class="eyebrow">Курс</p>
+        <h2>Модули и уроки</h2>
+    </div>
+    <div class="module-stack">
+        {% for module in modules %}
+            <article class="module-panel">
+                <div>
+                    <span class="module-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <h3>{{ module.title }}</h3>
+                    <p>{{ module.description }}</p>
+                </div>
+                <div class="lesson-list compact">
+                    {% for lesson in module.lessons.all %}
+                        {% if lesson.is_published %}
+                            <a class="lesson-row with-status" href="{{ lesson.get_absolute_url }}">
+                                <span>Урок {{ forloop.counter }}</span>
+                                <strong>{{ lesson.title }}</strong>
+                                {% if lesson.id in completed_lesson_ids %}
+                                    <em>Изучен</em>
+                                {% else %}
+                                    <em>Не изучен</em>
+                                {% endif %}
+                                {% if lesson.dashboard_tests %}
+                                    <div class="lesson-test-list">
+                                        {% for test in lesson.dashboard_tests %}
+                                            {% if test.display_attempt %}
+                                                <span class="lesson-test-result {% if test.display_attempt.is_passed %}passed{% else %}failed{% endif %}">
+                                                    {{ test.title }}: {{ test.display_attempt.percent }}%
+                                                </span>
+                                            {% else %}
+                                                <span class="lesson-test-result pending">
+                                                    {{ test.title }}: 0%
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% empty %}
+                        <p class="plain-text">Уроки для этого модуля пока не добавлены.</p>
+                    {% endfor %}
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <p class="eyebrow">Тестирование</p>
+        <h2>Последние попытки</h2>
+    </div>
+    {% if test_attempts %}
+        <div class="attempt-list">
+            {% for attempt in test_attempts %}
+                <a class="attempt-row" href="{{ attempt.test.get_absolute_url }}">
+                    <span>{{ attempt.test.lesson.title }} / {{ attempt.created_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ attempt.test.title }}</strong>
+                    <em class="{% if attempt.is_passed %}passed{% else %}failed{% endif %}">
+                        {{ attempt.percent }}%
+                    </em>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Попыток тестирования пока нет</h3>
+            <p>Откройте урок и пройдите тест для проверки знаний.</p>
+        </div>
+    {% endif %}
+</section>
+
+<section class="section muted">
+    <div class="section-heading">
+        <p class="eyebrow">Практика</p>
+        <h2>Отправленные работы</h2>
+    </div>
+    {% if practice_submissions %}
+        <div class="attempt-list">
+            {% for submission in practice_submissions %}
+                <a class="attempt-row" href="{{ submission.task.get_absolute_url }}">
+                    <span>{{ submission.task.lesson.title }} / {{ submission.updated_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ submission.task.title }}</strong>
+                    <em class="{% if submission.is_checked %}passed{% else %}pending{% endif %}">
+                        {% if submission.is_checked %}Проверено{% else %}На проверке{% endif %}
+                    </em>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Отправленных работ пока нет</h3>
+            <p>Откройте практическое задание и отправьте ответ.</p>
+        </div>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <p class="eyebrow">История</p>
+        <h2>Последние изученные уроки</h2>
+    </div>
+    {% if completed_lessons %}
+        <div class="lesson-list">
+            {% for progress in completed_lessons %}
+                <a class="lesson-row" href="{{ progress.lesson.get_absolute_url }}">
+                    <span>{{ progress.lesson.module.title }} / {{ progress.completed_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ progress.lesson.title }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Пока нет изученных уроков</h3>
+            <p>Откройте урок и нажмите кнопку отметки прогресса.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<article class="lesson-page">
+    <header class="page-head">
+        <p class="eyebrow">{{ lesson.module.title }}</p>
+        <h1>{{ lesson.title }}</h1>
+        {% if lesson.goal %}
+            <p>{{ lesson.goal }}</p>
+        {% endif %}
+    </header>
+
+    <section class="content-block">
+        {{ lesson.content|linebreaks }}
+
+        <div class="lesson-progress-action">
+            {% if user.is_authenticated %}
+                {% if is_completed %}
+                    <span class="status-badge done">Урок изучен</span>
+                {% else %}
+                    <form action="{% url 'complete_lesson' lesson.pk %}" method="post">
+                        {% csrf_token %}
+                        <button class="button primary dark" type="submit">Отметить как изученный</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a class="button primary dark" href="{% url 'login' %}">Войти, чтобы сохранить прогресс</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section muted">
+        <div class="section-heading">
+            <p class="eyebrow">Закрепление</p>
+            <h2>Практические задания</h2>
+        </div>
+        {% if lesson.practice_tasks.all %}
+            <div class="task-list">
+                {% for task in lesson.practice_tasks.all %}
+                    <article class="task-card">
+                        <h3>{{ task.title }}</h3>
+                        {% if task.objective %}
+                            <p><strong>Цель:</strong> {{ task.objective }}</p>
+                        {% endif %}
+                        {{ task.assignment|linebreaks }}
+                        {% if user.is_authenticated %}
+                            <a class="button primary dark" href="{{ task.get_absolute_url }}">Выполнить задание</a>
+                        {% else %}
+                            <a class="button primary dark" href="{% url 'login' %}">Войти для отправки</a>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="plain-text">Практические задания для урока пока не добавлены.</p>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <div class="section-heading">
+            <p class="eyebrow">Контроль знаний</p>
+            <h2>Тесты по уроку</h2>
+        </div>
+        {% with tests=lesson_tests %}
+            {% if tests %}
+                <div class="test-list">
+                    {% for test in tests %}
+                        {% if test.is_published %}
+                            <article class="test-card">
+                                <div>
+                                    <span class="meta">Проходной результат: {{ test.passing_percent }}%</span>
+                                    <h3>{{ test.title }}</h3>
+                                    {% if test.description %}
+                                        <p>{{ test.description }}</p>
+                                    {% endif %}
+                                    {% if test.last_attempt %}
+                                        <span class="test-status {% if test.last_attempt.is_passed %}passed{% else %}failed{% endif %}">
+                                            {% if test.last_attempt.is_passed %}Тест пройден{% else %}Тест не пройден{% endif %}: {{ test.last_attempt.percent }}%
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                {% if user.is_authenticated %}
+                                    {% if test.last_attempt %}
+                                        <a class="button test-repeat" href="{{ test.get_absolute_url }}">Пройти ещё раз</a>
+                                    {% else %}
+                                        <a class="button primary dark" href="{{ test.get_absolute_url }}">Пройти тест</a>
+                                    {% endif %}
+                                {% else %}
+                                    <a class="button primary dark" href="{% url 'login' %}">Войти для прохождения</a>
+                                {% endif %}
+                            </article>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="plain-text">Тесты для урока пока не добавлены.</p>
+            {% endif %}
+        {% endwith %}
+    </section>
+</article>
+{% endblock %}

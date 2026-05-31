@@ -1,0 +1,42 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Учебные модули{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Курс</p>
+    <h1>Учебные модули</h1>
+    <p>Каждый модуль объединяет теоретические материалы и практические задания.</p>
+</section>
+
+<section class="section">
+    {% if modules %}
+        <div class="module-stack">
+            {% for module in modules %}
+                <article class="module-panel" id="module-{{ module.pk }}">
+                    <div>
+                        <span class="module-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                        <h2>{{ module.title }}</h2>
+                        <p>{{ module.description }}</p>
+                    </div>
+                    <div class="lesson-list compact">
+                        {% for lesson in module.published_lessons %}
+                            <a class="lesson-row" href="{{ lesson.get_absolute_url }}">
+                                <span>Урок {{ forloop.counter }}</span>
+                                <strong>{{ lesson.title }}</strong>
+                            </a>
+                        {% empty %}
+                            <p class="plain-text">Уроки для этого модуля пока не добавлены.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Модулей пока нет</h2>
+            <p>Добавьте первый модуль в админ-панели Django.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

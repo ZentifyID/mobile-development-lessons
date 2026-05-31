@@ -1,0 +1,112 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Управление материалами{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Администрирование</p>
+    <h1>Управление материалами</h1>
+    <p>Создание и редактирование модулей, уроков, практических заданий, тестов, вопросов и ответов.</p>
+</section>
+
+<section class="section admin-content-section">
+    <div class="content-toolbar">
+        <a class="button primary dark" href="{% url 'admin_content_create' 'module' %}">Добавить модуль</a>
+    </div>
+
+    {% if modules %}
+        <div class="content-admin-stack">
+            {% for module in modules %}
+                <article class="content-admin-panel">
+                    <div class="content-admin-head">
+                        <div class="content-admin-copy">
+                            <span class="module-number">{{ module.order|stringformat:"02d" }}</span>
+                            <h2>{{ module.title }}</h2>
+                            <p>{{ module.description|default:"Описание не заполнено" }}</p>
+                            <span class="content-state {% if module.is_published %}published{% else %}draft{% endif %}">
+                                {% if module.is_published %}Опубликован{% else %}Черновик{% endif %}
+                            </span>
+                        </div>
+                        <div class="content-actions">
+                            <a class="content-action-button" href="{% url 'admin_content_edit' 'module' module.pk %}">Редактировать</a>
+                            <a class="content-action-button accent" href="{% url 'admin_content_create' 'lesson' %}?module={{ module.pk }}">Добавить урок</a>
+                        </div>
+                    </div>
+
+                    <div class="content-nested-list">
+                        {% for lesson in module.lessons.all %}
+                            <section class="content-nested-item">
+                                <div class="content-admin-head compact">
+                                    <div class="content-admin-copy">
+                                        <span class="meta">Урок {{ lesson.order }}</span>
+                                        <h3>{{ lesson.title }}</h3>
+                                        <span class="content-state {% if lesson.is_published %}published{% else %}draft{% endif %}">
+                                            {% if lesson.is_published %}Опубликован{% else %}Черновик{% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="content-actions">
+                                        <a class="content-action-button small" href="{% url 'admin_content_edit' 'lesson' lesson.pk %}">Редактировать</a>
+                                        <a class="content-action-button small accent" href="{% url 'admin_content_create' 'practice' %}?lesson={{ lesson.pk }}">Добавить практику</a>
+                                        <a class="content-action-button small accent" href="{% url 'admin_content_create' 'test' %}?lesson={{ lesson.pk }}">Добавить тест</a>
+                                    </div>
+                                </div>
+
+                                <div class="content-columns">
+                                    <div>
+                                        <h4>Практика</h4>
+                                        {% for task in lesson.practice_tasks.all %}
+                                            <div class="content-row">
+                                                <span>{{ task.title }}</span>
+                                                <div class="content-row-actions">
+                                                    <a class="content-action-button tiny" href="{% url 'admin_content_edit' 'practice' task.pk %}">Редактировать</a>
+                                                </div>
+                                            </div>
+                                        {% empty %}
+                                            <p class="plain-text">Заданий пока нет.</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div>
+                                        <h4>Тесты</h4>
+                                        {% for test in lesson.knowledge_tests.all %}
+                                            <div class="content-test-block">
+                                                <div class="content-row">
+                                                    <span>{{ test.title }} · {{ test.passing_percent }}%</span>
+                                                    <div class="content-row-actions">
+                                                        <a class="content-action-button tiny" href="{% url 'admin_content_edit' 'test' test.pk %}">Редактировать</a>
+                                                        <a class="content-action-button tiny accent" href="{% url 'admin_content_create' 'question' %}?test={{ test.pk }}">Добавить вопрос</a>
+                                                    </div>
+                                                </div>
+                                                {% for question in test.questions.all %}
+                                                    <div class="content-question-row">
+                                                        <span>{{ question.text|truncatechars:70 }}</span>
+                                                        <div class="content-row-actions">
+                                                            <a class="content-action-button tiny" href="{% url 'admin_content_edit' 'question' question.pk %}">Редактировать вопрос</a>
+                                                            <a class="content-action-button tiny accent" href="{% url 'admin_content_create' 'answer' %}?question={{ question.pk }}">Добавить ответ</a>
+                                                        </div>
+                                                    </div>
+                                                {% empty %}
+                                                    <p class="plain-text">Вопросов пока нет.</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% empty %}
+                                            <p class="plain-text">Тестов пока нет.</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </section>
+                        {% empty %}
+                            <p class="plain-text">В модуле пока нет уроков.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Материалов пока нет</h2>
+            <p>Начните с создания первого модуля.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Практические задания{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Практика</p>
+    <h1>Практические задания</h1>
+    <p>Задания помогают закрепить материал уроков и перейти от теории к разработке интерфейсов и логики приложения.</p>
+</section>
+
+<section class="section">
+    {% if tasks %}
+        <div class="task-list">
+            {% for task in tasks %}
+                <article class="task-card">
+                    <span class="meta">{{ task.lesson.module.title }} / {{ task.lesson.title }}</span>
+                    <h2>{{ task.title }}</h2>
+                    {% if task.objective %}
+                        <p><strong>Цель:</strong> {{ task.objective }}</p>
+                    {% endif %}
+                    <p>{{ task.assignment|truncatewords:32 }}</p>
+                    {% if user.is_authenticated %}
+                        <a class="button primary dark" href="{{ task.get_absolute_url }}">Открыть задание</a>
+                    {% else %}
+                        <a class="button primary dark" href="{% url 'login' %}">Войти для отправки</a>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Заданий пока нет</h2>
+            <p>Практические задания можно добавить через админ-панель.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

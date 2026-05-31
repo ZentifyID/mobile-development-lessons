@@ -1,0 +1,63 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">{{ task.lesson.module.title }} / {{ task.lesson.title }}</p>
+    <h1>{{ task.title }}</h1>
+    {% if task.objective %}
+        <p>{{ task.objective }}</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="practice-layout">
+        <article class="content-block practice-content">
+            <h2>Задание</h2>
+            {{ task.assignment|linebreaks }}
+        </article>
+
+        <aside class="submission-panel">
+            <div class="submission-status">
+                <p class="eyebrow">Отправка</p>
+                {% if submission %}
+                    <h2>{% if submission.is_checked %}Работа проверена{% else %}Работа отправлена{% endif %}</h2>
+                    <p>Последнее обновление: {{ submission.updated_at|date:"d.m.Y H:i" }}</p>
+                    {% if submission.teacher_comment %}
+                        <div class="teacher-comment">
+                            <strong>Комментарий преподавателя</strong>
+                            <p>{{ submission.teacher_comment }}</p>
+                        </div>
+                    {% endif %}
+                    {% if submission.attached_file %}
+                        <a class="file-link" href="{{ submission.attached_file.url }}">Прикреплённый файл</a>
+                    {% endif %}
+                {% else %}
+                    <h2>Работа ещё не отправлена</h2>
+                    <p>Заполните ответ и отправьте работу на проверку.</p>
+                {% endif %}
+            </div>
+
+            <form class="form-stack" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+                {% for field in form %}
+                    <label class="form-field">
+                        <span>{{ field.label }}</span>
+                        {{ field }}
+                        {% if field.errors %}
+                            <small class="error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </label>
+                {% endfor %}
+                <button class="button primary dark" type="submit">
+                    {% if submission %}Обновить ответ{% else %}Отправить работу{% endif %}
+                </button>
+            </form>
+        </aside>
+    </div>
+</section>
+{% endblock %}

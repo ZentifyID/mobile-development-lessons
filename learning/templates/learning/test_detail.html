@@ -1,0 +1,48 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}{{ knowledge_test.title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">{{ knowledge_test.lesson.title }}</p>
+    <h1>{{ knowledge_test.title }}</h1>
+    {% if knowledge_test.description %}
+        <p>{{ knowledge_test.description }}</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="test-summary">
+        <span>Вопросов: {{ questions|length }}</span>
+        <span>Проходной результат: {{ knowledge_test.passing_percent }}%</span>
+        {% if last_attempt %}
+            <span>Последняя попытка: {{ last_attempt.percent }}%</span>
+        {% endif %}
+    </div>
+
+    {% if questions %}
+        <form method="post" class="test-form">
+            {% csrf_token %}
+            {% for question in questions %}
+                <fieldset class="question-card">
+                    <legend>{{ forloop.counter }}. {{ question.text }}</legend>
+                    <div class="answer-list">
+                        {% for answer in question.answers.all %}
+                            <label class="answer-option">
+                                <input type="radio" name="question_{% firstof question.pk question.id %}" value="{{ answer.pk }}">
+                                <span>{{ answer.text }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            {% endfor %}
+            <button class="button primary dark" type="submit">Завершить тест</button>
+        </form>
+    {% else %}
+        <div class="empty-state">
+            <h2>Вопросы пока не добавлены</h2>
+            <p>Добавьте вопросы и варианты ответов через админ-панель.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

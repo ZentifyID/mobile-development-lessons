@@ -1,0 +1,118 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Статистика пользователя{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Статистика пользователя</p>
+    <h1>{{ student.get_full_name|default:student.username }}</h1>
+    <p>{{ student.username }}{% if student.email %} · {{ student.email }}{% endif %}</p>
+</section>
+
+<section class="section">
+    <div class="dashboard-grid">
+        <article class="metric-card">
+            <span>Изучено уроков</span>
+            <strong>{{ stats.completed_count }} / {{ stats.total_lessons }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Прогресс курса</span>
+            <strong>{{ stats.progress_percent }}%</strong>
+        </article>
+        <article class="metric-card">
+            <span>Пройдено тестов</span>
+            <strong>{{ stats.passed_tests }} / {{ stats.total_tests }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Средний результат</span>
+            <strong>{{ stats.average_test_percent }}%</strong>
+        </article>
+    </div>
+    <a class="button secondary light" href="{% url 'admin_statistics' %}">К общей статистике</a>
+</section>
+
+<section class="section muted">
+    <div class="section-heading">
+        <p class="eyebrow">Контроль знаний</p>
+        <h2>Результаты тестов</h2>
+    </div>
+    {% if test_rows %}
+        <div class="attempt-list">
+            {% for row in test_rows %}
+                <a class="attempt-row" href="{{ row.test.get_absolute_url }}">
+                    <span>{{ row.test.lesson.title }}</span>
+                    <strong>{{ row.test.title }}</strong>
+                    {% if row.attempt %}
+                        <em class="{% if row.attempt.is_passed %}passed{% else %}failed{% endif %}">{{ row.percent }}%</em>
+                    {% else %}
+                        <em class="pending">0%</em>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="plain-text">Опубликованных тестов пока нет.</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <p class="eyebrow">История</p>
+        <h2>Последние попытки</h2>
+    </div>
+    {% if attempts %}
+        <div class="attempt-list">
+            {% for attempt in attempts %}
+                <a class="attempt-row" href="{{ attempt.test.get_absolute_url }}">
+                    <span>{{ attempt.test.lesson.title }} / {{ attempt.created_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ attempt.test.title }}</strong>
+                    <em class="{% if attempt.is_passed %}passed{% else %}failed{% endif %}">{{ attempt.percent }}%</em>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="plain-text">Попыток тестов пока нет.</p>
+    {% endif %}
+</section>
+
+<section class="section muted">
+    <div class="section-heading">
+        <p class="eyebrow">Практика</p>
+        <h2>Последние работы</h2>
+    </div>
+    {% if submissions %}
+        <div class="attempt-list">
+            {% for submission in submissions %}
+                <a class="attempt-row" href="{{ submission.task.get_absolute_url }}">
+                    <span>{{ submission.task.lesson.title }} / {{ submission.updated_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ submission.task.title }}</strong>
+                    <em class="{% if submission.is_checked %}passed{% else %}pending{% endif %}">
+                        {% if submission.is_checked %}Проверено{% else %}На проверке{% endif %}
+                    </em>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="plain-text">Отправленных работ пока нет.</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <p class="eyebrow">Уроки</p>
+        <h2>Последние изученные уроки</h2>
+    </div>
+    {% if completed_lessons %}
+        <div class="lesson-list">
+            {% for progress in completed_lessons %}
+                <a class="lesson-row" href="{{ progress.lesson.get_absolute_url }}">
+                    <span>{{ progress.lesson.module.title }} / {{ progress.completed_at|date:"d.m.Y H:i" }}</span>
+                    <strong>{{ progress.lesson.title }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="plain-text">Изученных уроков пока нет.</p>
+    {% endif %}
+</section>
+{% endblock %}

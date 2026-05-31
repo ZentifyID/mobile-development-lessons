@@ -1,0 +1,73 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Статистика пользователей{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Администрирование</p>
+    <h1>Статистика пользователей</h1>
+    <p>Сводка по обычным пользователям, их прогрессу, тестам и практическим работам.</p>
+</section>
+
+<section class="section">
+    <div class="dashboard-grid">
+        <article class="metric-card">
+            <span>Пользователей</span>
+            <strong>{{ totals.students }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Изучено уроков</span>
+            <strong>{{ totals.completed_lessons }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Пройдено тестов</span>
+            <strong>{{ totals.passed_tests }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Отправлено работ</span>
+            <strong>{{ totals.practice_submissions }}</strong>
+        </article>
+    </div>
+
+    {% if student_stats %}
+        <div class="stats-table-wrap">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Пользователь</th>
+                        <th>Уроки</th>
+                        <th>Прогресс</th>
+                        <th>Тесты</th>
+                        <th>Средний результат</th>
+                        <th>Практика</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stats in student_stats %}
+                        <tr>
+                            <td>
+                                <strong>{{ stats.user.get_full_name|default:stats.user.username }}</strong>
+                                <span>{{ stats.user.username }}</span>
+                            </td>
+                            <td>{{ stats.completed_count }} / {{ stats.total_lessons }}</td>
+                            <td>{{ stats.progress_percent }}%</td>
+                            <td>{{ stats.passed_tests }} / {{ stats.total_tests }}</td>
+                            <td>{{ stats.average_test_percent }}%</td>
+                            <td>{{ stats.checked_practice_count }} / {{ stats.practice_count }}</td>
+                            <td>
+                                <a class="table-link" href="{% url 'admin_user_statistics' stats.user.pk %}">Открыть</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Обычных пользователей пока нет</h2>
+            <p>После регистрации студентов здесь появится их статистика.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

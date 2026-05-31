@@ -1,0 +1,82 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card wide">
+        <p class="eyebrow">Аккаунт</p>
+        <h1>Регистрация</h1>
+        <form method="post" class="form-stack">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="form-grid">
+                <label class="form-field">
+                    <span>{{ form.username.label }}</span>
+                    {{ form.username }}
+                    {% if form.username.help_text %}
+                        <small>{{ form.username.help_text }}</small>
+                    {% endif %}
+                    {% if form.username.errors %}
+                        <small class="error">{{ form.username.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+                <label class="form-field">
+                    <span>{{ form.email.label }}</span>
+                    {{ form.email }}
+                    {% if form.email.help_text %}
+                        <small>{{ form.email.help_text }}</small>
+                    {% endif %}
+                    {% if form.email.errors %}
+                        <small class="error">{{ form.email.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+                <label class="form-field">
+                    <span>{{ form.first_name.label }}</span>
+                    {{ form.first_name }}
+                    {% if form.first_name.help_text %}
+                        <small>{{ form.first_name.help_text }}</small>
+                    {% endif %}
+                    {% if form.first_name.errors %}
+                        <small class="error">{{ form.first_name.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+                <label class="form-field">
+                    <span>{{ form.last_name.label }}</span>
+                    {{ form.last_name }}
+                    {% if form.last_name.help_text %}
+                        <small>{{ form.last_name.help_text }}</small>
+                    {% endif %}
+                    {% if form.last_name.errors %}
+                        <small class="error">{{ form.last_name.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+                <label class="form-field">
+                    <span>{{ form.password1.label }}</span>
+                    {{ form.password1 }}
+                    {% if form.password1.help_text %}
+                        <small>{{ form.password1.help_text }}</small>
+                    {% endif %}
+                    {% if form.password1.errors %}
+                        <small class="error">{{ form.password1.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+                <label class="form-field">
+                    <span>{{ form.password2.label }}</span>
+                    {{ form.password2 }}
+                    {% if form.password2.help_text %}
+                        <small>{{ form.password2.help_text }}</small>
+                    {% endif %}
+                    {% if form.password2.errors %}
+                        <small class="error">{{ form.password2.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+            </div>
+            <button class="button primary dark" type="submit">Создать аккаунт</button>
+        </form>
+        <p class="auth-note">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+    </div>
+</section>
+{% endblock %}

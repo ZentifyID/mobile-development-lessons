@@ -1,0 +1,68 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Разработка мобильных приложений{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'learning/styles.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">
+            <span class="brand-mark">РМ</span>
+            <span>Разработка мобильных приложений</span>
+        </a>
+        <nav class="main-nav" aria-label="Основная навигация">
+            <a href="{% url 'home' %}">Главная</a>
+            <a href="{% url 'module_list' %}">Модули</a>
+            <a href="{% url 'practice_list' %}">Практика</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Кабинет</a>
+                {% if user.is_staff %}
+                    <details class="admin-menu">
+                        <summary>Админ</summary>
+                        <div class="admin-menu-list">
+                            <a href="{% url 'admin_submissions' %}">Отправки</a>
+                            <a href="{% url 'admin_content' %}">Управление</a>
+                            <a href="{% url 'admin_statistics' %}">Статистика</a>
+                            <a href="/admin/">Админ-панель</a>
+                        </div>
+                    </details>
+                {% endif %}
+                <form class="logout-form" action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Выход</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Вход</a>
+                <a href="{% url 'register' %}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <a class="brand footer-brand" href="{% url 'home' %}">
+            <span class="brand-mark">РМ</span>
+            <span>Разработка мобильных приложений</span>
+        </a>
+        <div class="footer-links">
+            <span>Электронное учебное пособие</span>
+            <a href="{% url 'module_list' %}">Учебные модули</a>
+        </div>
+    </footer>
+</body>
+</html>

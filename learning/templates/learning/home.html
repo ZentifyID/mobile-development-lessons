@@ -1,0 +1,102 @@
+{% extends 'learning/base.html' %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <p class="eyebrow">Электронное учебное пособие</p>
+        <h1>Разработка мобильных приложений</h1>
+        <p class="hero-text">
+            Учебный сайт для изучения теории, выполнения практических работ и постепенной подготовки к созданию собственного мобильного приложения.
+        </p>
+        <div class="hero-actions">
+            <a class="button primary" href="{% url 'module_list' %}">Перейти к модулям</a>
+            <a class="button secondary" href="{% url 'practice_list' %}">Практические задания</a>
+        </div>
+        <div class="hero-note glass-card">
+            <span class="note-dot"></span>
+            <div>
+                <strong>От теории к интерфейсу</strong>
+                <span>модули, практика, тесты и личный прогресс в одном маршруте</span>
+            </div>
+        </div>
+        <div class="hero-stats" aria-label="Статистика курса">
+            <span><strong>{{ stats.modules }}</strong> модулей</span>
+            <span><strong>{{ stats.lessons }}</strong> уроков</span>
+            <span><strong>{{ stats.practice_tasks }}</strong> практических работ</span>
+            <span><strong>{{ stats.tests }}</strong> тестов</span>
+        </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+        <div class="phone-shell">
+            <div class="phone-screen">
+                <span class="phone-pill"></span>
+                <span class="phone-line long"></span>
+                <span class="phone-line"></span>
+                <div class="phone-card"></div>
+                <span class="phone-button"></span>
+            </div>
+        </div>
+        <div class="floating-card floating-card-top">
+            <span>UI</span>
+            <strong>{{ stats.lessons }} уроков</strong>
+        </div>
+        <div class="floating-card floating-card-bottom">
+            <span>Practice</span>
+            <strong>{{ stats.practice_tasks }} работ</strong>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-heading centered">
+        <p class="eyebrow">Структура</p>
+        <h2>Учебные модули</h2>
+    </div>
+    {% if modules %}
+        <div class="module-grid">
+            {% for module in modules %}
+                <article class="module-card">
+                    <div class="module-card-art">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="module-card-body">
+                        <span class="module-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                        <h3>{{ module.title }}</h3>
+                        <p>{{ module.description|default:'Описание модуля можно добавить через админ-панель.' }}</p>
+                    </div>
+                    <div class="module-card-footer">
+                        <span class="meta">{{ module.published_lessons|length }} уроков</span>
+                        <a class="card-arrow" href="{% url 'module_list' %}#module-{{ module.pk }}" aria-label="Открыть модуль {{ module.title }}">→</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Материалы пока не добавлены</h3>
+            <p>После создания модулей и уроков в админ-панели они появятся на главной странице.</p>
+        </div>
+    {% endif %}
+</section>
+
+<section class="section muted">
+    <div class="section-heading centered">
+        <p class="eyebrow">Содержание</p>
+        <h2>Последние уроки</h2>
+    </div>
+    {% if latest_lessons %}
+        <div class="lesson-list">
+            {% for lesson in latest_lessons %}
+                <a class="lesson-row" href="{{ lesson.get_absolute_url }}">
+                    <span>{{ lesson.module.title }}</span>
+                    <strong>{{ lesson.title }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="plain-text">Уроки появятся после наполнения пособия.</p>
+    {% endif %}
+</section>
+{% endblock %}

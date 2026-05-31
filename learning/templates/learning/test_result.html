@@ -1,0 +1,23 @@
+{% extends 'learning/base.html' %}
+
+{% block title %}Результат теста{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <p class="eyebrow">Результат тестирования</p>
+    <h1>{{ knowledge_test.title }}</h1>
+    <p>{{ knowledge_test.lesson.title }}</p>
+</section>
+
+<section class="section">
+    <div class="result-card {% if attempt.is_passed %}passed{% else %}failed{% endif %}">
+        <span>{% if attempt.is_passed %}Тест пройден{% else %}Тест не пройден{% endif %}</span>
+        <strong>{{ attempt.percent }}%</strong>
+        <p>Правильных ответов: {{ attempt.score }} из {{ attempt.total_questions }}. Проходной результат: {{ knowledge_test.passing_percent }}%.</p>
+        <div class="hero-actions">
+            <a class="button primary dark" href="{{ knowledge_test.get_absolute_url }}">Пройти ещё раз</a>
+            <a class="button secondary light" href="{% url 'dashboard' %}">В личный кабинет</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
